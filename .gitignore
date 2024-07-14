@@ -1,7 +1,9 @@
 
 # Ignore virtual environment directory
 vnv/
-
+data.keras
+logs
+path/to/venv
 # Ignore Python cache files
 __pycache__/
 *.py[cod]
