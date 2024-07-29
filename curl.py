@@ -4,16 +4,14 @@ import numpy as np
 import pandas as pd
 import os, csv
 
-# Important landmarks and headers for bicep curl
+# Important landmarks and headers for bicep curl (right side, wrist control, and back posture)
 IMPORTANT_LMS = [
-    "LEFT_SHOULDER",
     "RIGHT_SHOULDER",
-    "LEFT_ELBOW",
     "RIGHT_ELBOW",
-    "LEFT_WRIST",
     "RIGHT_WRIST",
-    "LEFT_HIP",
     "RIGHT_HIP",
+    "RIGHT_KNEE",
+    "NOSE"
 ]
 
 HEADERS = ["label"]  # Label column
@@ -28,8 +26,8 @@ def rescale_frame(frame, percent=50):
     '''
     Rescale a frame to a certain percentage compared to its original frame
     '''
-    width = int(frame.shape[1])
-    height = int(frame.shape[0])
+    width = int(frame.shape[1] * percent / 100)
+    height = int(frame.shape[0] * percent / 100)
     dim = (width, height)
     return cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
 
@@ -114,6 +112,27 @@ def concat_csv_files_with_same_headers(file_paths: list, saved_path: str):
     results = pd.concat(all_df, axis=0, ignore_index=True)
     results.to_csv(saved_path, sep=',', encoding='utf-8', index=False)
 
+def extract_min_max(data):
+    min_max = {}
+    for label in data['label'].unique():
+        min_max[label] = {}
+        label_data = data[data['label'] == label]
+        for col in data.columns:
+            if col != 'label':
+                min_max[label][col] = (label_data[col].min(), label_data[col].max())
+    return min_max
+
+def generate_synthetic_data(min_max, num_samples):
+    synthetic_data = []
+    for label in min_max.keys():
+        for _ in range(num_samples):
+            sample = [label]
+            for col in HEADERS[1:]:  # Skip the 'label' column
+                min_val, max_val = min_max[label][col]
+                sample.append(np.random.uniform(min_val, max_val))
+            synthetic_data.append(sample)
+    return synthetic_data
+
 # Main code to capture video from webcam and process frames
 DATASET_PATH = "train.csv"
 
@@ -163,13 +182,17 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
         if k == ord('c'):
             export_landmark_to_csv(DATASET_PATH, results, "C")
             save_counts += 1
-        # Press L to save as low back (bad form)
-        elif k == ord("l"):
-            export_landmark_to_csv(DATASET_PATH, results, "L")
+        # Press B to save as back bad form
+        elif k == ord("b"):
+            export_landmark_to_csv(DATASET_PATH, results, "B")
             save_counts += 1
         # Press R to save as limited range of motion
         elif k == ord("r"):
             export_landmark_to_csv(DATASET_PATH, results, "R")
+            save_counts += 1
+        # Press W to save as wrist control
+        elif k == ord("w"):
+            export_landmark_to_csv(DATASET_PATH, results, "W")
             save_counts += 1
         # Press q to stop
         elif k == ord("q"):
@@ -186,3 +209,14 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
 
 # Describe the dataset
 df = describe_dataset(DATASET_PATH)
+
+if df is not None:
+    # Extract min and max values for each label
+    min_max = extract_min_max(df)
+
+    # Generate synthetic data
+    synthetic_data = generate_synthetic_data(min_max, num_samples=10000)
+
+    # Save synthetic data to CSV
+    synthetic_df = pd.DataFrame(synthetic_data, columns=HEADERS)
+    synthetic_df.to_csv("synthetic_data.csv", index=False)
