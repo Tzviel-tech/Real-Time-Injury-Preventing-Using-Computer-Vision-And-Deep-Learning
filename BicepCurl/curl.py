@@ -112,32 +112,12 @@ def concat_csv_files_with_same_headers(file_paths: list, saved_path: str):
     results = pd.concat(all_df, axis=0, ignore_index=True)
     results.to_csv(saved_path, sep=',', encoding='utf-8', index=False)
 
-def extract_min_max(data):
-    min_max = {}
-    for label in data['label'].unique():
-        min_max[label] = {}
-        label_data = data[data['label'] == label]
-        for col in data.columns:
-            if col != 'label':
-                min_max[label][col] = (label_data[col].min(), label_data[col].max())
-    return min_max
-
-def generate_synthetic_data(min_max, num_samples):
-    synthetic_data = []
-    for label in min_max.keys():
-        for _ in range(num_samples):
-            sample = [label]
-            for col in HEADERS[1:]:  # Skip the 'label' column
-                min_val, max_val = min_max[label][col]
-                sample.append(np.random.uniform(min_val, max_val))
-            synthetic_data.append(sample)
-    return synthetic_data
-
 # Main code to capture video from webcam and process frames
 DATASET_PATH = "train.csv"
 
 cap = cv2.VideoCapture(0)  # Capture video from the webcam
-save_counts = 0
+save_counts_correct = 0
+save_counts_incorrect = 0
 
 # Initialize the CSV file if it doesn't exist
 init_csv(DATASET_PATH)
@@ -150,7 +130,7 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             break
 
         # Reduce size of a frame
-        image = rescale_frame(image, 60)
+        image = rescale_frame(image, 130)
         image = cv2.flip(image, 1)
 
         # Recolor image from BGR to RGB for mediapipe
@@ -163,60 +143,62 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             print("Cannot detect pose - No human found")
             continue
 
-        # Recolor image from BGR to RGB for mediapipe
+        # Recolor image from RGB back to BGR for OpenCV
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
         # Draw landmarks and connections
-        mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS, mp_drawing.DrawingSpec(color=(244, 117, 66), thickness=2, circle_radius=4), mp_drawing.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2))
+        mp_drawing.draw_landmarks(
+            image,
+            results.pose_landmarks,
+            mp_pose.POSE_CONNECTIONS,
+            mp_drawing.DrawingSpec(color=(244, 117, 66), thickness=2, circle_radius=4),
+            mp_drawing.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2)
+        )
 
-        # Display the saved count
-        cv2.putText(image, f"Saved: {save_counts}", (50, 50), cv2.FONT_HERSHEY_COMPLEX, 2, (0, 0, 0), 2, cv2.LINE_AA)
+        # Display the saved counts
+        start_x = 50
+        start_y = 50
+        font = cv2.FONT_HERSHEY_COMPLEX
+        font_scale = 1.2
+        font_color = (0, 0, 0)
+        thickness = 2
+        line_type = cv2.LINE_AA
+
+        # First line of text
+        text1 = f"Saved counts for correct form: {save_counts_correct}"
+        (text_width1, text_height1), baseline1 = cv2.getTextSize(text1, font, font_scale, thickness)
+        cv2.putText(image, text1, (start_x, start_y), font, font_scale, font_color, thickness, line_type)
+
+        # Second line of text
+        text2 = f"Saved counts for incorrect form: {save_counts_incorrect}"
+        (text_width2, text_height2), baseline2 = cv2.getTextSize(text2, font, font_scale, thickness)
+        line_spacing = 10  # Adjust spacing between lines if needed
+        cv2.putText(image, text2, (start_x, start_y + text_height1 + line_spacing), font, font_scale, font_color, thickness, line_type)
 
         cv2.imshow("CV2", image)
 
         # Pressed key for action
         k = cv2.waitKey(1) & 0xFF
 
-        # Press C to save as correct form (good range of motion)
+        # Press c to save as correct form 
         if k == ord('c'):
             export_landmark_to_csv(DATASET_PATH, results, "C")
-            save_counts += 1
-        # Press B to save as back bad form
-        elif k == ord("b"):
-            export_landmark_to_csv(DATASET_PATH, results, "B")
-            save_counts += 1
-        # Press R to save as limited range of motion
-        elif k == ord("r"):
-            export_landmark_to_csv(DATASET_PATH, results, "R")
-            save_counts += 1
-        # Press W to save as wrist control
-        elif k == ord("w"):
-            export_landmark_to_csv(DATASET_PATH, results, "W")
-            save_counts += 1
+            save_counts_correct += 1
+        # Press l to save as incorrect form
+        elif k == ord("l"):
+            export_landmark_to_csv(DATASET_PATH, results, "L")
+            save_counts_incorrect += 1
         # Press q to stop
         elif k == ord("q"):
             break
         else:
             continue
-
     cap.release()
     cv2.destroyAllWindows()
 
-    # (Optional) Fix bugs cannot close windows in MacOS (https://stackoverflow.com/questions/6116564/destroywindow-does-not-close-window-on-mac-using-python-and-opencv)
     for i in range(1, 5):
         cv2.waitKey(1)
 
 # Describe the dataset
 df = describe_dataset(DATASET_PATH)
-
-if df is not None:
-    # Extract min and max values for each label
-    min_max = extract_min_max(df)
-
-    # Generate synthetic data
-    synthetic_data = generate_synthetic_data(min_max, num_samples=10000)
-
-    # Save synthetic data to CSV
-    synthetic_df = pd.DataFrame(synthetic_data, columns=HEADERS)
-    synthetic_df.to_csv("synthetic_data.csv", index=False)
