@@ -1,8 +1,9 @@
-import pandas as pd
+import json
 
-# Load your CSV file
-file_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_squat.csv'  # Replace with your file path
-keypoints_squat_df = pd.read_csv(file_path)
+# Load your JSON file
+file_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_squat.json'
+with open(file_path, 'r') as json_file:
+    keypoints_data = json.load(json_file)
 
 # Define the labeling logic
 def label_form(frame):
@@ -23,9 +24,20 @@ def label_form(frame):
     else:
         return 'Unknown'
 
-# Apply the labeling function to the 'frame' column
-keypoints_squat_df['Form'] = keypoints_squat_df['frame'].apply(label_form)
+# Apply the labeling function
+for frame_str, keypoints in keypoints_data.items():
+    frame_number = int(frame_str)
+    form_label = label_form(frame_number)
+    # Update the data
+    keypoints_data[frame_str] = {
+        'Form': form_label,
+        'keypoints': keypoints
+    }
 
-# Save the new CSV
-output_path = 'keypoints_squat_labeled.csv'
-keypoints_squat_df.to_csv(output_path, index=False)
+# Save the updated JSON file
+output_path = 'keypoints_squat_labeled.json'
+with open(output_path, 'w') as json_file:
+    json.dump(keypoints_data, json_file, indent=4)
+
+print(f"Labels added and saved to '{output_path}'.")
+
