@@ -63,7 +63,6 @@ while cap.isOpened():
                 'x': lm.x,
                 'y': lm.y,
                 'z': lm.z,
-                'visibility': lm.visibility
             })
         
         keypoints_data.extend(frame_keypoints)
@@ -89,7 +88,6 @@ if keypoints_data:
             'x': kp['x'],
             'y': kp['y'],
             'z': kp['z'],
-            'visibility': kp['visibility']
         })
     # Save to JSON file
     with open('keypoints_squat.json', 'w') as json_file:
