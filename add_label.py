@@ -7,11 +7,9 @@ with open(file_path, 'r') as json_file:
 
 # Define the labeling logic based on the frame tags from your image
 def label_form(frame):
-    if 0 <= frame <= 3656:
+    if 0 <= frame <= 2545:
         return 'Correct_Form'
-    elif 3657 <= frame <= 3657:
-        return 'Incorrect_Form'
-    elif 3658 <= frame <= 4656:
+    elif 2546 <= frame <= 5118:
         return 'Incorrect_Form'
     else:
         return 'Unknown'
