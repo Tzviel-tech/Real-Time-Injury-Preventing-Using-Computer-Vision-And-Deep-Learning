@@ -12,11 +12,11 @@ def calculate_angle(a, b, c):
     b = np.array(b)
     c = np.array(c)
     
-    ba = a - b  # vector ba: first to middle point (e.g. hip to shoulder)
-    bc = c - b  # vector bc: middle to last point (e.g. shoulder to neck)
+    ba = a - b  # vector ba: first to middle point
+    bc = c - b  # vector bc: middle to last point
     
     cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
-    cosine_angle = np.clip(cosine_angle, -1.0, 1.0)
+    cosine_angle = np.clip(cosine_angle, -1.0, 1.0)  # Clipping to avoid numerical issues
     
     angle = np.arccos(cosine_angle)
     return np.degrees(angle)
@@ -32,34 +32,31 @@ def get_landmark_coordinates(keypoints, landmark_name):
 for frame, data in keypoints_data.items():
     keypoints = data['keypoints']
     
-    # Get coordinates of relevant landmarks for back and elbow angles
-    shoulder = get_landmark_coordinates(keypoints, 'LEFT_SHOULDER')  # Use 'RIGHT_SHOULDER' for the right arm
+    # Get coordinates of relevant landmarks for left side angles
+    shoulder = get_landmark_coordinates(keypoints, 'LEFT_SHOULDER')
     hip = get_landmark_coordinates(keypoints, 'LEFT_HIP')
     elbow = get_landmark_coordinates(keypoints, 'LEFT_ELBOW')
     wrist = get_landmark_coordinates(keypoints, 'LEFT_WRIST')
-    
-    # Calculate the back angle (between hip-shoulder-neck)
-    if shoulder and hip:
-        neck = get_landmark_coordinates(keypoints, 'RIGHT_SHOULDER')  # Use the midpoint between shoulders as neck
-        if neck:
-            back_angle = calculate_angle(hip, shoulder, neck)
-        else:
-            back_angle = 'N/A'  # Mark missing angles
+    knee = get_landmark_coordinates(keypoints, 'LEFT_KNEE')
+
+    # Calculate shoulder-hip-knee angle (left leg)
+    if shoulder and hip and knee:
+        shoulder_hip_knee_angle = calculate_angle(shoulder, hip, knee)
     else:
-        back_angle = 'N/A'
-    
-    # Calculate elbow angle (between shoulder-elbow-wrist)
-    if shoulder and elbow and wrist:
-        elbow_angle = calculate_angle(shoulder, elbow, wrist)
+        shoulder_hip_knee_angle = 'N/A'
+
+    # Calculate wrist-shoulder-hip angle (upper body)
+    if wrist and shoulder and hip:
+        wrist_shoulder_hip_angle = calculate_angle(wrist, shoulder, hip)
     else:
-        elbow_angle = 'N/A'
+        wrist_shoulder_hip_angle = 'N/A'
 
     # Add angles to the keypoints data
-    data['back_angle'] = back_angle
-    data['elbow_angle'] = elbow_angle
+    data['shoulder_hip_knee_angle'] = shoulder_hip_knee_angle
+    data['wrist_shoulder_hip_angle'] = wrist_shoulder_hip_angle
 
 # Save the updated JSON with angles
-output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_bicep_curl_with_angles.json'
+output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_bicep_curl_with_knee_and_hip_angles.json'
 with open(output_path, 'w') as json_file:
     json.dump(keypoints_data, json_file, indent=4)
 

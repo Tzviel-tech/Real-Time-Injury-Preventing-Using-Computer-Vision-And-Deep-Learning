@@ -23,7 +23,7 @@ os.makedirs('./frames_bicep_curl/', exist_ok=True)
 # List of landmark names from Mediapipe (focus on upper body and back landmarks for bicep curls)
 landmark_names = [lm.name for lm in mp_pose.PoseLandmark]
 
-# Include upper body landmarks (for arms) and back landmarks (for posture analysis)
+# Include upper body landmarks (for arms), back landmarks (for posture analysis), and knees
 include_landmark_indices = [
     mp_pose.PoseLandmark.LEFT_SHOULDER.value,
     mp_pose.PoseLandmark.RIGHT_SHOULDER.value,
@@ -33,6 +33,8 @@ include_landmark_indices = [
     mp_pose.PoseLandmark.RIGHT_WRIST.value,
     mp_pose.PoseLandmark.LEFT_HIP.value,
     mp_pose.PoseLandmark.RIGHT_HIP.value,
+    mp_pose.PoseLandmark.LEFT_KNEE.value,  # Added left knee
+    mp_pose.PoseLandmark.RIGHT_KNEE.value  # Added right knee
 ]
 
 # Loop through video frames
@@ -62,7 +64,7 @@ while cap.isOpened():
         # Extract key points and save them
         frame_keypoints = []
         for idx, lm in enumerate(results.pose_landmarks.landmark):
-            # Include only the relevant upper body and back landmarks
+            # Include only the relevant upper body, back, and knee landmarks
             if idx not in include_landmark_indices:
                 continue
             landmark_name = landmark_names[idx]
@@ -99,8 +101,8 @@ if keypoints_data:
             'z': kp['z'],
         })
     # Save to JSON file
-    with open('keypoints_bicep_curl_with_back.json', 'w') as json_file:
+    with open('keypoints_bicep_curl_with_back_and_knees.json', 'w') as json_file:
         json.dump(keypoints_by_frame, json_file, indent=4)
-    print(f"Processed {frame_count} frames and saved keypoints to 'keypoints_bicep_curl_with_back.json'.")
+    print(f"Processed {frame_count} frames and saved keypoints to 'keypoints_bicep_curl_with_back_and_knees.json'.")
 else:
     print("No keypoints were detected. JSON file will not be created.")
