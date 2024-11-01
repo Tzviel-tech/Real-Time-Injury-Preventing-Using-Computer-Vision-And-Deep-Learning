@@ -37,7 +37,8 @@ pip install -r requirements.txt
 
 ## Usage
 
-1. Run the main script
+1. Run the main script (make sure to adjust the path to the model according to your directory here - 
+   lstm_model = tf.keras.models.load_model(r'../models/model_bicep_curl_complete.keras'))
 
 2. Position yourself in front of the camera, ensuring your full body is visible.
 
