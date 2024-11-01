@@ -6,7 +6,6 @@ output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_bicep_curl_
 with open(file_path, 'r') as json_file:
     keypoints_data = json.load(json_file)
 
-# Updated label_form function with new frame ranges
 def label_form(frame):
     if 0 <= frame <= 10749:
         return 'Correct_Form'
@@ -23,7 +22,6 @@ def label_form(frame):
     else:
         return 'Unknown'
 
-# Process each frame in the JSON file
 for frame_str, keypoints in keypoints_data.items():
     frame_number = int(frame_str)
     form_label = label_form(frame_number)
@@ -32,7 +30,6 @@ for frame_str, keypoints in keypoints_data.items():
         'keypoints': keypoints
     }
 
-# Save updated JSON with labels
 with open(output_path, 'w') as json_file:
     json.dump(keypoints_data, json_file, indent=4)
 
