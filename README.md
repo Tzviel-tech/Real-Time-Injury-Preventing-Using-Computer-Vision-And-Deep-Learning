@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project uses OpenCV and deep learning to predict in real-time whether a gym exercise is being performed correctly. It aims to help users improve their workout form and reduce the risk of injury during exercise.
+This project uses mediapipe and LSTM  to predict in real-time whether a gym exercise is being performed correctly. It aims to help users improve their workout form and reduce the risk of injury during exercise.
 
 ## Features
 
@@ -10,7 +10,6 @@ This project uses OpenCV and deep learning to predict in real-time whether a gym
 - Deep learning model for pose estimation and form analysis
 - Support for multiple common gym exercises
 - Visual feedback on exercise form
-- User-friendly interface for easy interpretation of results
 
 ## Runing Example - Bicep - Cruls Evaluator
 
@@ -22,7 +21,8 @@ https://github.com/user-attachments/assets/4f0e5bd9-2e84-4676-a5f3-c20b1cc62bf2
 
 - Python 3.7+
 - OpenCV
-- TensorFlow or PyTorch (depending on the deep learning framework used)
+- mediapipe
+- TensorFlow 
 - Webcam or video input device
 
 ## Installation
@@ -32,7 +32,7 @@ git clone https://github.com/Tzviel-tech/Real-Time-Injury-Preventing-Using-Compu
 
 
 2. Install required packages:
-pip install -r requirements.txt
+pip install -r req.txt
 
 
 ## Usage
