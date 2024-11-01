@@ -5,6 +5,15 @@ from tensorflow import keras
 from keras import layers
 from sklearn.model_selection import train_test_split
 
+# Label mapping for multi-class classification
+form_label_mapping = {
+    'Correct_Form': 0,
+    'Incorrect_Form_Leaning_Forward': 1,
+    'Incorrect_Form_Leaning_Backwards': 2,
+    'Incorrect_Form_Loose_Arms': 3
+}
+
+# Function to prepare data
 def prepare_data(json_path, window_size):
     with open(json_path, 'r') as json_file:
         data = json.load(json_file)
@@ -23,41 +32,56 @@ def prepare_data(json_path, window_size):
                 features.extend([kp['x'], kp['y'], kp['z']])
             
             features.append(frame_data.get('shoulder_hip_knee_angle', 0))
-            features.append(frame_data.get('wrist_shoulder_hip_angle', 0))
+            features.append(frame_data.get('elbow_shoulder_hip_angle', 0)) 
             
             sequence.append(features)
         
         X.append(sequence)
-        y.append(1 if frame_data['Form'] == 'Correct_Form' else 0)
+        y.append(form_label_mapping.get(frame_data['Form'], -1))
     
     X = np.array(X)
     y = np.array(y)
     
     return X, y
 
-json_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_bicep_curl_with_angles.json'
+# Path to data
+json_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_bicep_curl_labeled_with_angles_2.json'
 X, y = prepare_data(json_path, window_size=30)
 
 X = X.reshape((X.shape[0], X.shape[1], X.shape[2]))
 
+# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
+# Model with increased complexity
 model = tf.keras.Sequential([
-    layers.LSTM(32, return_sequences=True, input_shape=(30, X.shape[2])),
+    layers.LSTM(128, return_sequences=True, input_shape=(30, X.shape[2])),
+    layers.BatchNormalization(),
+    layers.Dropout(0.3),
+    layers.LSTM(128, return_sequences=True),
+    layers.BatchNormalization(),
+    layers.Dropout(0.3),
+    layers.LSTM(64, return_sequences=True),
     layers.BatchNormalization(),
     layers.Dropout(0.3),
     layers.LSTM(32),
     layers.BatchNormalization(),
     layers.Dropout(0.3),
-    layers.Dense(32, activation='relu'),
-    layers.Dense(1, activation='sigmoid')
+    layers.Dense(128, activation='relu'),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(len(form_label_mapping), activation='softmax')
 ])
 
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+# Compile with a lower initial learning rate
+model.compile(optimizer=keras.optimizers.Adam(learning_rate=5e-5), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
-lr_scheduler = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=2, verbose=1)
+# Callbacks with extended patience and reduced minimum learning rate
+early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+lr_scheduler = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=10, min_lr=1e-7, verbose=1)
 
-model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test), callbacks=[early_stopping, lr_scheduler])
+# Train with a larger batch size and more epochs
+model.fit(X_train, y_train, epochs=300, batch_size=64, validation_data=(X_test, y_test), callbacks=[early_stopping, lr_scheduler])
 
-model.save(r'C:\Users\alexc\Final_Project\Final-Project\model_bicep_curl_with_angles.keras')
+# Save the trained model
+model.save(r'C:\Users\alexc\Final_Project\Final-Project\model_bicep_curl_complete_2.keras')
+
