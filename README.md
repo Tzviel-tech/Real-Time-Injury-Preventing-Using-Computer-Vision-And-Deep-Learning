@@ -12,6 +12,12 @@ This project uses OpenCV and deep learning to predict in real-time whether a gym
 - Visual feedback on exercise form
 - User-friendly interface for easy interpretation of results
 
+## Runing Example - Bicep - Cruls Evaluator
+
+
+https://github.com/user-attachments/assets/4f0e5bd9-2e84-4676-a5f3-c20b1cc62bf2
+
+
 ## Prerequisites
 
 - Python 3.7+
