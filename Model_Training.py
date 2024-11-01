@@ -4,6 +4,7 @@ import tensorflow as tf
 from tensorflow import keras
 from keras import layers
 from sklearn.model_selection import train_test_split
+from sklearn.utils import class_weight
 
 # Label mapping for multi-class classification
 form_label_mapping = {
@@ -45,7 +46,7 @@ def prepare_data(json_path, window_size):
     return X, y
 
 # Path to data
-json_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_bicep_curl_labeled_with_angles_2.json'
+json_path = r'C:\Users\alexc\Final_Project\Final-Project\bicep_data_combined.json'
 X, y = prepare_data(json_path, window_size=30)
 
 X = X.reshape((X.shape[0], X.shape[1], X.shape[2]))
@@ -53,35 +54,41 @@ X = X.reshape((X.shape[0], X.shape[1], X.shape[2]))
 # Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# Model with increased complexity
+# Model with reduced complexity
 model = tf.keras.Sequential([
-    layers.LSTM(128, return_sequences=True, input_shape=(30, X.shape[2])),
-    layers.BatchNormalization(),
-    layers.Dropout(0.3),
-    layers.LSTM(128, return_sequences=True),
-    layers.BatchNormalization(),
-    layers.Dropout(0.3),
-    layers.LSTM(64, return_sequences=True),
-    layers.BatchNormalization(),
-    layers.Dropout(0.3),
-    layers.LSTM(32),
-    layers.BatchNormalization(),
-    layers.Dropout(0.3),
-    layers.Dense(128, activation='relu'),
-    layers.Dense(64, activation='relu'),
+    layers.LSTM(64, return_sequences=True, input_shape=(30, X.shape[2])),  # Reduced units
+    layers.Dropout(0.2),
+    layers.LSTM(32),  # Single additional LSTM layer
+    layers.Dropout(0.2),
+    layers.Dense(64, activation='relu'),  # Dense layer with reduced units
     layers.Dense(len(form_label_mapping), activation='softmax')
 ])
 
-# Compile with a lower initial learning rate
-model.compile(optimizer=keras.optimizers.Adam(learning_rate=5e-5), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+# Calculate class weights based on training labels
+class_weights = class_weight.compute_class_weight(
+    class_weight='balanced',
+    classes=np.unique(y_train),
+    y=y_train
+)
 
-# Callbacks with extended patience and reduced minimum learning rate
-early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
-lr_scheduler = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=10, min_lr=1e-7, verbose=1)
+# Map the weights to each class index
+class_weight_dict = {i: class_weights[i] for i in range(len(class_weights))}
+print("Class weights:", class_weight_dict)
+
+# Define callbacks with modified parameters
+early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+lr_scheduler = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-7, verbose=1)
+
+# Compile and train the model with class weights
+model.compile(optimizer=keras.optimizers.Adam(learning_rate=5e-5), 
+              loss='sparse_categorical_crossentropy', 
+              metrics=['accuracy'])
 
 # Train with a larger batch size and more epochs
-model.fit(X_train, y_train, epochs=300, batch_size=64, validation_data=(X_test, y_test), callbacks=[early_stopping, lr_scheduler])
+model.fit(X_train, y_train, epochs=200, batch_size=64, 
+          validation_data=(X_test, y_test), 
+          class_weight=class_weight_dict,
+          callbacks=[early_stopping, lr_scheduler])
 
 # Save the trained model
-model.save(r'C:\Users\alexc\Final_Project\Final-Project\model_bicep_curl_complete_2.keras')
-
+model.save(r'C:\Users\alexc\Final_Project\Final-Project\model_bicep_curl_simplified.keras')

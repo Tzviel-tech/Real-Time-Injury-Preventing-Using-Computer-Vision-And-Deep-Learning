@@ -54,7 +54,7 @@ def calculate_elbow_shoulder_hip_angle(landmarks):
     return calculate_angle(left_elbow, left_shoulder, left_hip)
 
 # Load the multi-class model
-lstm_model = tf.keras.models.load_model(r'C:\Users\alexc\Final_Project\Final-Project\model_bicep_curl_complete_2.keras')
+lstm_model = tf.keras.models.load_model(r'C:\Users\alexc\Final_Project\Final-Project\model_bicep_curl_complete.keras')
 
 pose = mp_pose.Pose()
 cap = cv2.VideoCapture(0)
