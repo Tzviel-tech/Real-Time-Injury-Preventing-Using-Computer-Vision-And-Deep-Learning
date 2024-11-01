@@ -6,7 +6,7 @@ import json
 mp_pose = mp.solutions.pose
 mp_drawing = mp.solutions.drawing_utils
 
-cap = cv2.VideoCapture(r'C:\Users\alexc\Final_Project\Final-Project\Videos\bicep_curl.mp4')
+cap = cv2.VideoCapture(r'C:\Users\alexc\Final_Project\Final-Project\Videos\bicep_curl_2.mp4')
 
 pose = mp_pose.Pose()
 
@@ -79,8 +79,8 @@ if keypoints_data:
             'y': kp['y'],
             'z': kp['z'],
         })
-    with open('keypoints_bicep_curl_with_back_and_knees.json', 'w') as json_file:
+    with open('keypoints_bicep_curl_new.json', 'w') as json_file:
         json.dump(keypoints_by_frame, json_file, indent=4)
-    print(f"Processed {frame_count} frames and saved keypoints to 'keypoints_bicep_curl_with_back_and_knees.json'.")
+    print(f"Processed {frame_count} frames and saved keypoints to 'keypoints_bicep_curl_2.json'.")
 else:
     print("No keypoints were detected. JSON file will not be created.")

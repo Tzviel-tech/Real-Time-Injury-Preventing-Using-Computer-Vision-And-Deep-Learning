@@ -1,7 +1,7 @@
 import json
 import numpy as np
 
-file_path = r'C:\Users\alexc\Final_Project\Final-Project\Labeled_Data\keypoints_bicep_curl_labeled.json'
+file_path = r'C:\Users\alexc\Final_Project\Final-Project\Labeled_Data\keypoints_bicep_curl_2_labeled.json'
 with open(file_path, 'r') as json_file:
     keypoints_data = json.load(json_file)
 
@@ -31,7 +31,6 @@ for frame, data in keypoints_data.items():
     shoulder = get_landmark_coordinates(keypoints, 'LEFT_SHOULDER')
     hip = get_landmark_coordinates(keypoints, 'LEFT_HIP')
     elbow = get_landmark_coordinates(keypoints, 'LEFT_ELBOW')
-    wrist = get_landmark_coordinates(keypoints, 'LEFT_WRIST')
     knee = get_landmark_coordinates(keypoints, 'LEFT_KNEE')
 
     if shoulder and hip and knee:
@@ -39,15 +38,15 @@ for frame, data in keypoints_data.items():
     else:
         shoulder_hip_knee_angle = 'N/A'
 
-    if wrist and shoulder and hip:
-        wrist_shoulder_hip_angle = calculate_angle(wrist, shoulder, hip)
+    if elbow and shoulder and hip:
+        elbow_shoulder_hip_angle = calculate_angle(elbow, shoulder, hip)
     else:
-        wrist_shoulder_hip_angle = 'N/A'
+        elbow_shoulder_hip_angle = 'N/A'
 
     data['shoulder_hip_knee_angle'] = shoulder_hip_knee_angle
-    data['wrist_shoulder_hip_angle'] = wrist_shoulder_hip_angle
+    data['elbow_shoulder_hip_angle'] = elbow_shoulder_hip_angle
 
-output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_bicep_curl_with_knee_and_hip_angles.json'
+output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_bicep_curl_labeled_with_angles_2.json'
 with open(output_path, 'w') as json_file:
     json.dump(keypoints_data, json_file, indent=4)
 
