@@ -3,11 +3,9 @@ import mediapipe as mp
 import numpy as np
 import tensorflow as tf
 
-# Initialize Mediapipe and model
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
-# Dictionary to map prediction indices to labels
 form_label_mapping = {
     0: 'Correct_Form',
     1: 'Incorrect Form Leaning Forward',
@@ -53,7 +51,6 @@ def calculate_elbow_shoulder_hip_angle(landmarks):
                 landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].z]
     return calculate_angle(left_elbow, left_shoulder, left_hip)
 
-# Load the multi-class model
 lstm_model = tf.keras.models.load_model(r'C:\Users\alexc\Final_Project\Final-Project\model_bicep_curl_complete.keras')
 
 pose = mp_pose.Pose()
@@ -75,7 +72,6 @@ include_landmark_indices = [
     mp_pose.PoseLandmark.RIGHT_KNEE.value
 ]
 
-# Initialize default color for skeleton as green (Correct)
 skeleton_color = (0, 255, 0)
 
 while cap.isOpened():
@@ -110,23 +106,19 @@ while cap.isOpened():
         if len(keypoint_window) == window_size:
             input_data = np.array(keypoint_window).reshape(1, window_size, len(keypoints))
             prediction = lstm_model.predict(input_data)
-            
-            # Get the index of the highest probability in prediction
+        
             predicted_index = np.argmax(prediction)
             form = form_label_mapping.get(predicted_index, "Unknown")
 
-            # Check if the form is correct or incorrect
             if form == 'Correct_Form':
-                text_color = (0, 255, 0)  # Green for correct
+                text_color = (0, 255, 0)  
                 skeleton_color = (0, 255, 0)
             else:
-                text_color = (0, 0, 255)  # Red for incorrect
+                text_color = (0, 0, 255)  
                 skeleton_color = (0, 0, 255)
 
-            # Display the form label on the video frame with smaller font size and red color for incorrect
             cv2.putText(frame, f'Form: {form}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, text_color, 2, cv2.LINE_AA)
 
-        # Draw the skeleton in the specified color based on form correctness
         mp_drawing.draw_landmarks(frame, result.pose_landmarks, mp_pose.POSE_CONNECTIONS,
                                   mp_drawing.DrawingSpec(color=skeleton_color, thickness=2, circle_radius=2),
                                   mp_drawing.DrawingSpec(color=skeleton_color, thickness=2, circle_radius=2))
