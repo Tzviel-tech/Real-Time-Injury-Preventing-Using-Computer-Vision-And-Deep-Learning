@@ -1,7 +1,7 @@
 import json
 import numpy as np
 
-file_path = r'C:\Users\alexc\Final_Project\Final-Project\Labeled_Data\keypoints_bicep_curl_2_labeled.json'
+file_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_plank_labeled.json'
 with open(file_path, 'r') as json_file:
     keypoints_data = json.load(json_file)
 
@@ -46,7 +46,7 @@ for frame, data in keypoints_data.items():
     data['shoulder_hip_knee_angle'] = shoulder_hip_knee_angle
     data['elbow_shoulder_hip_angle'] = elbow_shoulder_hip_angle
 
-output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_bicep_curl_labeled_with_angles_2.json'
+output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_plank_labeled_with_angles.json'
 with open(output_path, 'w') as json_file:
     json.dump(keypoints_data, json_file, indent=4)
 
