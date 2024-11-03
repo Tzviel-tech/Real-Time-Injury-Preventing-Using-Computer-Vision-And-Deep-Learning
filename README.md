@@ -18,7 +18,8 @@ https://github.com/user-attachments/assets/4f0e5bd9-2e84-4676-a5f3-c20b1cc62bf2
 
 ## Model Trainig Traking Example - Bicep Curl
 
-https://github.com/user-attachments/assets/1aa3383b-8350-454b-add2-0a08fcf3ab25
+
+![Model Training Tracking Example](https://github.com/user-attachments/assets/1aa3383b-8350-454b-add2-0a08fcf3ab25)
 
 ## Prerequisites
 
