@@ -11,11 +11,14 @@ This project uses mediapipe and LSTM  to predict in real-time whether a gym exer
 - Support for multiple common gym exercises
 - Visual feedback on exercise form
 
-## Runing Example - Bicep - Cruls Evaluator
+## Runing Example - Bicep - Curls Evaluator
 
 
 https://github.com/user-attachments/assets/4f0e5bd9-2e84-4676-a5f3-c20b1cc62bf2
 
+## Model Trainig Traking Example - Bicep Curl
+
+https://github.com/user-attachments/assets/1aa3383b-8350-454b-add2-0a08fcf3ab25
 
 ## Prerequisites
 
