@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project uses mediapipe and LSTM  to predict in real-time whether a gym exercise is being performed correctly. It aims to help users improve their workout form and reduce the risk of injury during exercise.
+This project uses Mediapipe and LSTM to predict in real-time whether a gym exercise is being performed correctly. It aims to help users improve their workout form and reduce the risk of injury during exercise.
 
 ## Features
 
@@ -16,7 +16,7 @@ This project uses mediapipe and LSTM  to predict in real-time whether a gym exer
 
 https://github.com/user-attachments/assets/4f0e5bd9-2e84-4676-a5f3-c20b1cc62bf2
 
-## Model Trainig Traking Example - Bicep Curl
+## Model Training Traking Example - Bicep Curl
 
 
 ![Model Training Tracking Example](https://github.com/user-attachments/assets/1aa3383b-8350-454b-add2-0a08fcf3ab25)
