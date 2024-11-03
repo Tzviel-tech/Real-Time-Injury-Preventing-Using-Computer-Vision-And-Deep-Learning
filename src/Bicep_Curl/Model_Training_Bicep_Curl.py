@@ -7,7 +7,6 @@ from sklearn.model_selection import train_test_split
 import wandb
 from wandb.integration.keras import WandbCallback
 
-# Initialize Weights & Biases
 wandb.init(project="bicep_curl_detection", name="Bicep Curl Model")
 
 form_label_mapping = {
@@ -73,7 +72,6 @@ model.compile(optimizer=keras.optimizers.Adam(learning_rate=5e-5),
               loss='sparse_categorical_crossentropy', 
               metrics=['accuracy'])
 
-# Use WandbCallback to log metrics to Weights & Biases
 model.fit(X_train, y_train, epochs=50, batch_size=32, 
           validation_data=(X_test, y_test), 
           class_weight=class_weight_dict,
