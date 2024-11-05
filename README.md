@@ -54,8 +54,8 @@ pip install -r req.txt
 
 ## Supported Exercises
 
-- Squats
-- Bicep - Cruls
+- Shoulder Press
+- Bicep Curls
 - Plank
 
 ## How It Works
