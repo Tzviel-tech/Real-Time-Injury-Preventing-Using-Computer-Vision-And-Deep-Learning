@@ -1,18 +1,16 @@
 import json
 
-file_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_plank.json'
-output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_plank_labeled.json'
+file_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_shoulder_press.json'
+output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_shoulder_press_labeled.json'
 
 with open(file_path, 'r') as json_file:
     keypoints_data = json.load(json_file)
 
 def label_form(frame):
-    if 0 <= frame <= 2419:
+    if 0 <= frame <= 5061:
         return 'Correct_Form'
-    elif 2420 <= frame <= 4736:
-        return 'High_Back'
-    elif 4737 <= frame <= 7137:
-        return 'Low_Back'
+    elif 5062 <= frame <= 10897:
+        return 'Unbalanced'
     else:
         return 'Unknown'
 

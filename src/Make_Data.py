@@ -6,14 +6,14 @@ import json
 mp_pose = mp.solutions.pose
 mp_drawing = mp.solutions.drawing_utils
 
-cap = cv2.VideoCapture(r'C:\Users\alexc\Final_Project\Final-Project\data\Videos\plank.mp4')
+cap = cv2.VideoCapture(r'C:\Users\alexc\Final_Project\Final-Project\data\video\shoulder_press.mp4')
 
 pose = mp_pose.Pose()
 
 frame_count = 0
 keypoints_data = []
 
-os.makedirs('./frames_plank/', exist_ok=True)
+os.makedirs('./frames_shoulder_press/', exist_ok=True)
 
 landmark_names = [lm.name for lm in mp_pose.PoseLandmark]
 
@@ -79,8 +79,8 @@ if keypoints_data:
             'y': kp['y'],
             'z': kp['z'],
         })
-    with open('keypoints_plank.json', 'w') as json_file:
+    with open('keypoints_shoulder_press.json', 'w') as json_file:
         json.dump(keypoints_by_frame, json_file, indent=4)
-    print(f"Processed {frame_count} frames and saved keypoints to 'keypoints_plank.json'.")
+    print(f"Processed {frame_count} frames and saved keypoints to 'keypoints_shoulder_press.json'.")
 else:
     print("No keypoints were detected. JSON file will not be created.")
