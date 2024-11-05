@@ -1,7 +1,7 @@
 import json
 import numpy as np
 
-file_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_plank_labeled.json'
+file_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_shoulder_press_labeled.json'
 with open(file_path, 'r') as json_file:
     keypoints_data = json.load(json_file)
 
@@ -28,25 +28,28 @@ def get_landmark_coordinates(keypoints, landmark_name):
 for frame, data in keypoints_data.items():
     keypoints = data['keypoints']
 
-    shoulder = get_landmark_coordinates(keypoints, 'LEFT_SHOULDER')
-    hip = get_landmark_coordinates(keypoints, 'LEFT_HIP')
-    elbow = get_landmark_coordinates(keypoints, 'LEFT_ELBOW')
-    knee = get_landmark_coordinates(keypoints, 'LEFT_KNEE')
+    left_wrist = get_landmark_coordinates(keypoints, 'LEFT_WRIST')
+    left_elbow = get_landmark_coordinates(keypoints, 'LEFT_ELBOW')
+    
+    right_wrist = get_landmark_coordinates(keypoints, 'RIGHT_WRIST')
+    right_elbow = get_landmark_coordinates(keypoints, 'RIGHT_ELBOW')
 
-    if shoulder and hip and knee:
-        shoulder_hip_knee_angle = calculate_angle(shoulder, hip, knee)
+
+    if right_elbow and left_elbow and right_wrist:
+        right_elbow_left_elbow_right_wrist_angle = calculate_angle(right_elbow, left_elbow, right_wrist)
     else:
-        shoulder_hip_knee_angle = 'N/A'
+        right_elbow_left_elbow_right_wrist_angle = 'N/A'
 
-    if elbow and shoulder and hip:
-        elbow_shoulder_hip_angle = calculate_angle(elbow, shoulder, hip)
+    if left_elbow and right_elbow and left_wrist:
+        left_elbow_right_elbow_left_wrist_angle = calculate_angle(left_elbow, right_elbow, left_wrist)
     else:
-        elbow_shoulder_hip_angle = 'N/A'
+        left_elbow_right_elbow_left_wrist_angle = 'N/A'
 
-    data['shoulder_hip_knee_angle'] = shoulder_hip_knee_angle
-    data['elbow_shoulder_hip_angle'] = elbow_shoulder_hip_angle
+    
+    data['right_elbow_left_elbow_right_wrist_angle'] = right_elbow_left_elbow_right_wrist_angle
+    data['left_elbow_right_elbow_left_wrist_angle'] = left_elbow_right_elbow_left_wrist_angle
 
-output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_plank_labeled_with_angles.json'
+output_path = r'C:\Users\alexc\Final_Project\Final-Project\keypoints_shoulder_press_with_angles.json'
 with open(output_path, 'w') as json_file:
     json.dump(keypoints_data, json_file, indent=4)
 
